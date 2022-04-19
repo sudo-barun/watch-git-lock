@@ -1,4 +1,4 @@
-#! /usr/bin/php
+#!/usr/bin/env php
 <?php
 
 class Watcher
@@ -17,16 +17,13 @@ class Watcher
 	public function watch()
 	{
 		if (! is_dir($this->dir.'/.git')) {
-			echo "The directory \"$this->dir\" is not a git repository.\n";
+			echo 'The directory "'.$this->dir.'" is not a git repository.'."\n";
 			return;
 		}
 
 		$fileExists = file_exists($this->indexFilePath);
-		echo $this->getInitialMessage($fileExists);
-		echo PHP_EOL;
-
-		echo "Watching $this->indexFilePathRel";
-		echo PHP_EOL;
+		echo $this->getInitialMessage($fileExists)."\n";
+		echo 'Watching '.$this->indexFilePathRel."\n";
 
 		while (true) {
 			sleep($this->sleepDuration);
@@ -39,24 +36,26 @@ class Watcher
 		}
 	}
 
-	protected function notify($msg)
-	{
-		echo $msg;
-		echo PHP_EOL;
-		exec('notify-send '.escapeshellarg($msg));
-		exec('paplay ' . escapeshellarg(__DIR__.'/notify.ogg'));
-	}
-
 	protected function getInitialMessage($fileExists)
 	{
-		return $fileExists ? "$this->indexFilePathRel exists." : "$this->indexFilePathRel does not exist.";
+		return $fileExists
+			? $this->indexFilePathRel.' exists.'
+			: $this->indexFilePathRel.' does not exist.';
 	}
 
 	protected function getMessage($fileExists)
 	{
-		return $fileExists ? "$this->indexFilePathRel has been added." : "$this->indexFilePathRel has been removed.";
+		return $fileExists
+			? $this->indexFilePathRel.' has been added.'
+			: $this->indexFilePathRel.' has been removed.';
+	}
+
+	protected function notify($msg)
+	{
+		echo $msg."\n";
+		exec('notify-send '.escapeshellarg($msg));
+		exec('paplay ' . escapeshellarg(__DIR__.'/notify.ogg'));
 	}
 }
 
-$watcher = new Watcher(getcwd());
-$watcher->watch();
+(new Watcher(getcwd()))->watch();
