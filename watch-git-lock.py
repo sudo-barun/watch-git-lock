@@ -2,6 +2,7 @@
 
 from os import getcwd, path, system
 from time import sleep
+import pipes
 
 
 class Watcher:
@@ -26,7 +27,7 @@ class Watcher:
 		while True:
 			sleep(self.sleepDuration)
 			fileExisted = fileExists
-			fileExists = path.isfile(self.dir)
+			fileExists = path.isfile(self.indexFilePath)
 			if fileExisted != fileExists:
 				self.notify(self.getMessage(fileExists))
 
@@ -40,7 +41,7 @@ class Watcher:
 
 	def notify(self, msg):
 		print(msg)
-		system('notify-send ' + msg)
+		system('notify-send ' + pipes.quote(msg) + '')
 		system('paplay ' + path.dirname(path.realpath(__file__)) + '/notify.ogg')
 
 
