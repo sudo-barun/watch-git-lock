@@ -9,7 +9,7 @@ class Watcher
   end
 
   def watch
-    return print "The directory #{@dir} is not a git repository." unless File.directory?("#{@dir}/.git")
+    return print "The directory #{@dir} is not a git repository.\n" unless File.directory?("#{@dir}/.git")
 
     file_exists = File.exist?(@index_file_path)
     initial_message = file_exists ? "#{@index_file_path_rel} exists." : "#{@index_file_path_rel} does not exists."
