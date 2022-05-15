@@ -9,13 +9,13 @@ class Watcher
   end
 
   def watch
-    return p "The directory #{@dir} is not a git repository." unless File.directory?("#{@dir}/.git")
+    return print "The directory #{@dir} is not a git repository." unless File.directory?("#{@dir}/.git")
 
     file_exists = File.exist?(@index_file_path)
     initial_message = file_exists ? "#{@index_file_path_rel} exists." : "#{@index_file_path_rel} does not exists."
 
-    p initial_message
-    p "Watching #{@index_file_path_rel}."
+    print initial_message
+    print "Watching #{@index_file_path_rel}."
 
     while true
       sleep(@sleep_duration)
@@ -31,7 +31,7 @@ class Watcher
   end
 
   def notify(message)
-    p message
+    print message
     system("notify-send '#{message}'")
     system("paplay #{Dir.pwd}/notify.ogg")
   end
