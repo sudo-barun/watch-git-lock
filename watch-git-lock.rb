@@ -3,7 +3,7 @@
 class Watcher
   def initialize(dir)
     @dir = dir
-    @index_file_path_rel = 'index.lock'
+    @index_file_path_rel = '.git/index.lock'
     @sleep_duration = 1
     @index_file_path = "#{@dir}/#{@index_file_path_rel}"
   end
