@@ -3,7 +3,7 @@
 class Watcher
   def initialize(dir)
     @dir = dir
-    @index_file_path_rel = '.git/index.lock'
+    @index_file_path_rel = 'index.lock'
     @sleep_duration = 1
     @index_file_path = "#{@dir}/#{@index_file_path_rel}"
   end
@@ -14,8 +14,8 @@ class Watcher
     file_exists = File.exist?(@index_file_path)
     initial_message = file_exists ? "#{@index_file_path_rel} exists." : "#{@index_file_path_rel} does not exists."
 
-    print initial_message
-    print "Watching #{@index_file_path_rel}."
+    print "#{initial_message}\n"
+    print "Watching #{@index_file_path_rel}.\n"
 
     while true
       sleep(@sleep_duration)
@@ -31,7 +31,7 @@ class Watcher
   end
 
   def notify(message)
-    print message
+    print "#{message}\n"
     system("notify-send '#{message}'")
     system("paplay #{Dir.pwd}/notify.ogg")
   end
