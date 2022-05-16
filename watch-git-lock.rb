@@ -3,7 +3,8 @@
 class Watcher
   def initialize(dir)
     @dir = dir
-    @index_file_path_rel = '.git/index.lock'
+    # @index_file_path_rel = '.git/index.lock'
+    @index_file_path_rel = 'index.lock'
     @sleep_duration = 1
     @index_file_path = "#{@dir}/#{@index_file_path_rel}"
   end
@@ -33,7 +34,7 @@ class Watcher
   def notify(message)
     print "#{message}\n"
     system("notify-send '#{message}'")
-    system("paplay #{Dir.pwd}/notify.ogg")
+    system("paplay #{__dir__}/notify.ogg")
   end
 end
 
