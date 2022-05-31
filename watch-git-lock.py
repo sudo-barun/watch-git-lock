@@ -19,7 +19,7 @@ class Watcher:
 			print('The directory "' + self.dir + '" is not a git repository.')
 			return
 
-		fileExists = path.isfile(self.dir)
+		fileExists = path.isfile(self.indexFilePath)
 		print(self.getInitialMessage(fileExists))
 
 		print('Watching '+self.indexFilePathRel)
