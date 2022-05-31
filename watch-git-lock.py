@@ -7,12 +7,12 @@ import subprocess
 
 
 class Watcher:
-	indexFilePathRel = '.git/index.lock'
-	sleepDuration = 1
+	index_file_path_rel = '.git/index.lock'
+	sleep_duration = 1
 
 	def __init__(self, dir):
 		self.dir = dir
-		self.indexFilePath = dir+'/'+self.indexFilePathRel
+		self.index_file_path = dir+'/'+self.index_file_path_rel
 
 	def watch(self):
 
@@ -20,25 +20,25 @@ class Watcher:
 			print('The directory "' + self.dir + '" is not a git repository.')
 			return
 
-		fileExists = path.isfile(self.indexFilePath)
-		print(self.getInitialMessage(fileExists))
+		file_exists = path.isfile(self.index_file_path)
+		print(self.get_initial_message(file_exists))
 
-		print('Watching '+self.indexFilePathRel)
+		print('Watching '+self.index_file_path_rel)
 
 		while True:
-			sleep(self.sleepDuration)
-			fileExisted = fileExists
-			fileExists = path.isfile(self.indexFilePath)
-			if fileExisted != fileExists:
-				self.notify(self.getMessage(fileExists))
+			sleep(self.sleep_duration)
+			file_existed = file_exists
+			file_exists = path.isfile(self.index_file_path)
+			if file_existed != file_exists:
+				self.notify(self.get_message(file_exists))
 
-	def getInitialMessage(self, fileExists):
-		return self.indexFilePathRel + ' exists.' if fileExists \
-			else self.indexFilePathRel + ' does not exist.'
+	def get_initial_message(self, file_exists):
+		return self.index_file_path_rel + ' exists.' if file_exists \
+			else self.index_file_path_rel + ' does not exist.'
 
-	def getMessage(self, fileExists):
-		return self.indexFilePathRel + ' has been added.' if fileExists \
-			else self.indexFilePathRel + ' has been removed.'
+	def get_message(self, file_exists):
+		return self.index_file_path_rel + ' has been added.' if file_exists \
+			else self.index_file_path_rel + ' has been removed.'
 
 	def notify(self, msg):
 		print(msg)
