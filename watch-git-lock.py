@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from os import getcwd, path, system
+from os import getcwd, path
 from time import sleep
 import pipes
+import subprocess
 
 
 class Watcher:
@@ -41,8 +42,8 @@ class Watcher:
 
 	def notify(self, msg):
 		print(msg)
-		system('notify-send ' + pipes.quote(msg) + '')
-		system('paplay ' + path.dirname(path.realpath(__file__)) + '/notify.ogg')
+		subprocess.Popen(['notify-send', msg])
+		subprocess.Popen(['paplay', path.dirname(path.realpath(__file__)) + '/notify.ogg'])
 
 
 Watcher(getcwd()).watch()
