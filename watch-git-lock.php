@@ -7,6 +7,7 @@ class Watcher
 	protected $indexFilePathRel = '.git/index.lock';
 	protected $indexFilePath;
 	protected $sleepDuration = 1;
+	protected $audioFilePath = __DIR__.'/notify.ogg';
 
 	public function __construct($dir)
 	{
@@ -54,7 +55,7 @@ class Watcher
 	{
 		echo $msg."\n";
 		exec('notify-send watch-git-lock '.escapeshellarg($msg));
-		exec('paplay ' . escapeshellarg(__DIR__.'/notify.ogg'));
+		exec('paplay ' . escapeshellarg($this->audioFilePath));
 	}
 }
 

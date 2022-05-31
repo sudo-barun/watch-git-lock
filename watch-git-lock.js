@@ -8,6 +8,7 @@ var Watcher = function (dir) {
 	this.indexFilePathRel = '.git/index.lock';
 	this.indexFilePath = dir+'/'+this.indexFilePathRel;
 	this.sleepDuration = 1;
+	this.audioFilePath = __dirname+'/notify.ogg';
 };
 
 Watcher.prototype.watch = function () {
@@ -51,7 +52,7 @@ Watcher.prototype.getMessage = function (fileExists) {
 Watcher.prototype.notify = function (msg) {
 	console.log(msg);
 	execSync('notify-send watch-git-lock '+JSON.stringify(msg));
-	execSync('paplay '+JSON.stringify(__dirname+'/notify.ogg'));
+	execSync('paplay '+JSON.stringify(this.audioFilePath));
 };
 
 (new Watcher(process.cwd())).watch();

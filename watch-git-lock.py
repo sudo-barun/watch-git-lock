@@ -9,6 +9,7 @@ import subprocess
 class Watcher:
 	index_file_path_rel = '.git/index.lock'
 	sleep_duration = 1
+	audio_file_path = path.dirname(path.realpath(__file__)) + '/notify.ogg'
 
 	def __init__(self, dir):
 		self.dir = dir
@@ -43,7 +44,7 @@ class Watcher:
 	def notify(self, msg):
 		print(msg)
 		subprocess.Popen(['notify-send', 'watch-git-lock', msg])
-		subprocess.Popen(['paplay', path.dirname(path.realpath(__file__)) + '/notify.ogg'])
+		subprocess.Popen(['paplay', self.audio_file_path])
 
 
 Watcher(getcwd()).watch()

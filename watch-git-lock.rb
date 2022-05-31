@@ -6,6 +6,7 @@ class Watcher
     @index_file_path_rel = '.git/index.lock'
     @sleep_duration = 1
     @index_file_path = "#{@dir}/#{@index_file_path_rel}"
+    @audio_file_path = "#{__dir__}/notify.ogg"
   end
 
   def watch
@@ -33,7 +34,7 @@ class Watcher
   def notify(message)
     print "#{message}\n"
     system("notify-send watch-git-lock '#{message}'")
-    system("paplay #{__dir__}/notify.ogg")
+    system("paplay #{@audio_file_path}")
   end
 end
 
