@@ -32,7 +32,7 @@ class Watcher
 
   def notify(message)
     print "#{message}\n"
-    system("notify-send '#{message}'")
+    system("notify-send watch-git-lock '#{message}'")
     system("paplay #{__dir__}/notify.ogg")
   end
 end

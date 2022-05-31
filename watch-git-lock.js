@@ -50,7 +50,7 @@ Watcher.prototype.getMessage = function (fileExists) {
 
 Watcher.prototype.notify = function (msg) {
 	console.log(msg);
-	execSync('notify-send '+JSON.stringify(msg));
+	execSync('notify-send watch-git-lock '+JSON.stringify(msg));
 	execSync('paplay '+JSON.stringify(__dirname+'/notify.ogg'));
 };
 

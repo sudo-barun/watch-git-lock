@@ -42,7 +42,7 @@ class Watcher:
 
 	def notify(self, msg):
 		print(msg)
-		subprocess.Popen(['notify-send', msg])
+		subprocess.Popen(['notify-send', 'watch-git-lock', msg])
 		subprocess.Popen(['paplay', path.dirname(path.realpath(__file__)) + '/notify.ogg'])
 
 

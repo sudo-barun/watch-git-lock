@@ -53,7 +53,7 @@ class Watcher
 	protected function notify($msg)
 	{
 		echo $msg."\n";
-		exec('notify-send '.escapeshellarg($msg));
+		exec('notify-send watch-git-lock '.escapeshellarg($msg));
 		exec('paplay ' . escapeshellarg(__DIR__.'/notify.ogg'));
 	}
 }
