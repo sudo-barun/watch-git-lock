@@ -43,7 +43,13 @@ class Watcher:
 
 	def notify(self, msg):
 		print(msg)
+		self.show_toast(msg)
+		self.play_audio()
+
+	def show_toast(self, msg):
 		subprocess.Popen(['notify-send', 'watch-git-lock', msg])
+
+	def play_audio(self):
 		subprocess.Popen(['paplay', self.audio_file_path])
 
 

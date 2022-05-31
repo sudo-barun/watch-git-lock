@@ -51,7 +51,15 @@ Watcher.prototype.getMessage = function (fileExists) {
 
 Watcher.prototype.notify = function (msg) {
 	console.log(msg);
+	this.showToast(msg);
+	this.playAudio();
+};
+
+Watcher.prototype.showToast = function (msg) {
 	execSync('notify-send watch-git-lock '+JSON.stringify(msg));
+};
+
+Watcher.prototype.playAudio = function () {
 	execSync('paplay '+JSON.stringify(this.audioFilePath));
 };
 

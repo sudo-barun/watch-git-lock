@@ -54,7 +54,17 @@ class Watcher
 	protected function notify($msg)
 	{
 		echo $msg."\n";
+		$this->showToast($msg);
+		$this->playAudio();
+	}
+
+	protected function showToast($msg)
+	{
 		exec('notify-send watch-git-lock '.escapeshellarg($msg));
+	}
+
+	protected function playAudio()
+	{
 		exec('paplay ' . escapeshellarg($this->audioFilePath));
 	}
 }

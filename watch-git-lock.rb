@@ -33,7 +33,15 @@ class Watcher
 
   def notify(message)
     print "#{message}\n"
+    show_toast(message)
+    play_audio()
+  end
+
+  def show_toast(message)
     system("notify-send watch-git-lock '#{message}'")
+  end
+
+  def play_audio()
     system("paplay #{@audio_file_path}")
   end
 end
