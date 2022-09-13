@@ -3,55 +3,97 @@
 var fs = require('fs');
 var execSync = require('child_process').execSync;
 
-var Watcher = function (dir) {
-	this.dir = dir;
-	this.indexFilePathRel = '.git/index.lock';
-	this.indexFilePath = dir+'/'+this.indexFilePathRel;
-	this.sleepDuration = 1;
-};
 
-Watcher.prototype.watch = function () {
-	if (! (
-		fs.existsSync(this.dir+'/.git')
-		&&
-		fs.lstatSync(this.dir+'/.git').isDirectory()
-	)) {
-		console.log('The directory "'+this.dir+ '" is not a git repository.');
+var GIT_DIRECTORY = '.git';
+var LOCK_FILE = 'index.lock';
+var LOCK_FILE_REL_PATH = GIT_DIRECTORY+'/'+LOCK_FILE;
+var AUDIO_FILE_REL_PATH = 'notify.ogg';
+var SLEEP_DURATION_SEC = 1;
+
+
+function start()
+{
+	var audioFilePath = __dirname+'/'+AUDIO_FILE_REL_PATH;
+	watchDirectory(process.cwd(), function (fileExists) {
+		notify(fileExists, audioFilePath);
+	});
+}
+
+
+function watchDirectory(directory, onChange)
+{
+	var gitPath = directory+'/'+GIT_DIRECTORY;
+	if (! (fs.existsSync(gitPath) && fs.lstatSync(gitPath).isDirectory())) {
+		console.log(prepareMessage(MESSAGE_DIRECTORY_NOT_GIT_REPO, 'directory', directory));
 		return;
 	}
 
-	var fileExists = fs.existsSync(this.indexFilePath);
-	console.log(this.getInitialMessage(fileExists));
+	var lockFilePath = directory+'/'+LOCK_FILE_REL_PATH;
 
-	console.log('Watching '+this.indexFilePathRel);
+	var fileExists = fs.existsSync(lockFilePath);
+	console.log(getInitialMessage(fileExists));
+
+	console.log(prepareMessage(MESSAGE_WATCHING_LOCK, 'lock', LOCK_FILE_REL_PATH));
 
 	while (true) {
-		execSync('sleep '+this.sleepDuration);
+		execSync('sleep '+SLEEP_DURATION_SEC);
 
 		var fileExisted = fileExists;
-		fileExists = fs.existsSync(this.indexFilePath);
+		fileExists = fs.existsSync(lockFilePath);
 		if (fileExisted !== fileExists) {
-			this.notify(this.getMessage(fileExists));
+			onChange(fileExists);
 		}
 	}
-};
+}
 
-Watcher.prototype.getInitialMessage = function (fileExists) {
-	return fileExists
-		? this.indexFilePathRel + ' exists.'
-		: this.indexFilePathRel + ' does not exist.';
-};
 
-Watcher.prototype.getMessage = function (fileExists) {
-	return fileExists
-		? this.indexFilePathRel + ' has been added.'
-		: this.indexFilePathRel + ' has been removed.';
-};
+function getInitialMessage(fileExists)
+{
+	var message = fileExists ? MESSAGE_LOCK_EXIST : MESSAGE_LOCK_NOT_EXIST;
+	return prepareMessage(message, 'lock', LOCK_FILE_REL_PATH);
+}
 
-Watcher.prototype.notify = function (msg) {
-	console.log(msg);
-	execSync('notify-send '+JSON.stringify(msg));
-	execSync('paplay '+JSON.stringify(__dirname+'/notify.ogg'));
-};
 
-(new Watcher(process.cwd())).watch();
+function getMessage(fileExists)
+{
+	var message = fileExists ? MESSAGE_LOCK_ADDED : MESSAGE_LOCK_REMOVED;
+	return prepareMessage(message, 'lock', LOCK_FILE_REL_PATH);
+}
+
+
+function notify(fileExists, audioFilePath)
+{
+	var message = getMessage(fileExists);
+	console.log(message);
+	showToast(message);
+	playAudio(audioFilePath);
+}
+
+
+function showToast(message)
+{
+	execSync('notify-send watch-git-lock '+JSON.stringify(message));
+}
+
+
+function playAudio(audioFilePath)
+{
+	execSync('paplay '+JSON.stringify(audioFilePath));
+}
+
+
+function prepareMessage(string, search, replace)
+{
+	return string.replace('{'+search+'}', replace);
+}
+
+
+var MESSAGE_DIRECTORY_NOT_GIT_REPO = 'The directory "{directory}" is not a git repository.';
+var MESSAGE_WATCHING_LOCK = 'Watching {lock}';
+var MESSAGE_LOCK_EXIST = '{lock} exists.';
+var MESSAGE_LOCK_NOT_EXIST = '{lock} does not exist.';
+var MESSAGE_LOCK_ADDED = '{lock} has been added.';
+var MESSAGE_LOCK_REMOVED = '{lock} has been removed.';
+
+
+start();
