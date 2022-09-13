@@ -1,72 +1,103 @@
 #!/usr/bin/env php
 <?php
 
-class Watcher
+namespace Watch_Git_Lock;
+
+
+const GIT_DIRECTORY = '.git';
+const LOCK_FILE = 'index.lock';
+const LOCK_FILE_REL_PATH = GIT_DIRECTORY.'/'.LOCK_FILE;
+const AUDIO_FILE_REL_PATH = 'notify.ogg';
+const SLEEP_DURATION_SEC = 1;
+
+
+function start()
 {
-	protected $dir;
-	protected $indexFilePathRel = '.git/index.lock';
-	protected $indexFilePath;
-	protected $sleepDuration = 1;
-	protected $audioFilePath = __DIR__.'/notify.ogg';
+	$audio_file_path = __DIR__.'/'.AUDIO_FILE_REL_PATH;
+	watch_directory(getcwd(), function (bool $file_exists) use ($audio_file_path) {
+		notify($file_exists, $audio_file_path);
+	});
+};
 
-	public function __construct($dir)
-	{
-		$this->dir = $dir;
-		$this->indexFilePath = $dir.'/'.$this->indexFilePathRel;
+
+function watch_directory(string $directory, callable $on_change)
+{
+	if (! is_dir($directory.'/'.GIT_DIRECTORY)) {
+		echo prepare_message(MESSAGE_DIRECTORY_NOT_GIT_REPO, 'directory', $directory)."\n";
+		return;
 	}
 
-	public function watch()
-	{
-		if (! is_dir($this->dir.'/.git')) {
-			echo 'The directory "'.$this->dir.'" is not a git repository.'."\n";
-			return;
+	$lock_file_path = $directory.'/'.LOCK_FILE_REL_PATH;
+
+	$file_exists = file_exists($lock_file_path);
+	echo get_initial_message($file_exists)."\n";
+	echo prepare_message(MESSAGE_WATCHING_LOCK, 'lock', LOCK_FILE_REL_PATH)."\n";
+
+	while (true) {
+		sleep(SLEEP_DURATION_SEC);
+
+		$file_existed = $file_exists;
+		$file_exists = file_exists($lock_file_path);
+		if ($file_existed !== $file_exists) {
+			$on_change($file_exists);
 		}
-
-		$fileExists = file_exists($this->indexFilePath);
-		echo $this->getInitialMessage($fileExists)."\n";
-		echo 'Watching '.$this->indexFilePathRel."\n";
-
-		while (true) {
-			sleep($this->sleepDuration);
-
-			$fileExisted = $fileExists;
-			$fileExists = file_exists($this->indexFilePath);
-			if ($fileExisted xor $fileExists) {
-				$this->notify($this->getMessage($fileExists));
-			}
-		}
-	}
-
-	protected function getInitialMessage($fileExists)
-	{
-		return $fileExists
-			? $this->indexFilePathRel.' exists.'
-			: $this->indexFilePathRel.' does not exist.';
-	}
-
-	protected function getMessage($fileExists)
-	{
-		return $fileExists
-			? $this->indexFilePathRel.' has been added.'
-			: $this->indexFilePathRel.' has been removed.';
-	}
-
-	protected function notify($msg)
-	{
-		echo $msg."\n";
-		$this->showToast($msg);
-		$this->playAudio();
-	}
-
-	protected function showToast($msg)
-	{
-		exec('notify-send watch-git-lock '.escapeshellarg($msg));
-	}
-
-	protected function playAudio()
-	{
-		exec('paplay ' . escapeshellarg($this->audioFilePath));
 	}
 }
 
-(new Watcher(getcwd()))->watch();
+
+function get_initial_message(bool $file_exists): string
+{
+	return prepare_message(
+		$file_exists ? MESSAGE_LOCK_EXIST : MESSAGE_LOCK_NOT_EXIST,
+		'lock',
+		LOCK_FILE_REL_PATH
+	);
+}
+
+
+function get_message(bool $file_exists): string
+{
+	return prepare_message(
+		$file_exists ? MESSAGE_LOCK_ADDED : MESSAGE_LOCK_REMOVED,
+		'lock',
+		LOCK_FILE_REL_PATH
+	);
+}
+
+
+function notify(bool $file_exists, $audio_file_path)
+{
+	$message = get_message($file_exists);
+	echo $message."\n";
+	show_toast($message);
+	play_audio($audio_file_path);
+}
+
+
+function show_toast(string $message)
+{
+	exec('notify-send watch-git-lock '.escapeshellarg($message));
+}
+
+
+function play_audio(string $audio_file_path)
+{
+	exec('paplay '.escapeshellarg($audio_file_path));
+}
+
+
+function prepare_message(string $string, string $search, string $replace): string
+{
+	return str_replace(sprintf('{%s}', $search), $replace, $string);
+}
+
+
+const MESSAGE_DIRECTORY_NOT_GIT_REPO = 'The directory "{directory}" is not a git repository.';
+const MESSAGE_WATCHING_LOCK = 'Watching {lock}';
+const MESSAGE_LOCK_EXIST = '{lock} exists.';
+const MESSAGE_LOCK_NOT_EXIST = '{lock} does not exist.';
+const MESSAGE_LOCK_ADDED = '{lock} has been added.';
+const MESSAGE_LOCK_REMOVED = '{lock} has been removed.';
+
+
+start();
